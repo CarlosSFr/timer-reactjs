@@ -26,6 +26,7 @@ const newCycleFormValidationSchema = zod.object({
         task: string,
         minutesAmount: number,
         startDate: Date,
+        interruptedDate?: Date
     }
 
 export function Home(){
@@ -58,6 +59,23 @@ export function Home(){
         setAmountSecondsPassed(0)
 
         reset();
+    }
+
+    function handleInterruptCycle(){
+
+        setCycles(
+            cycles.map((cycle) => {
+                if(cycle.id === activeCycleId){
+                    return {
+                        ...cycle,
+                        interruptedDate: new Date()
+                    }
+                }
+                return cycle
+            })
+        )
+
+        setActiveCycleId(null)
     }
 
     const activeCycle = cycles.find(cycle => cycle.id === activeCycleId)
@@ -107,6 +125,7 @@ export function Home(){
                     id="task" 
                     placeholder="Dê um nome para o seu projeto"
                     list="task-suggestions"
+                    disabled={!!activeCycle}
                     {...register("task")}   // o register é uma função que registra um input
                                             // ajudando no monitoramento do input
                     />
@@ -121,6 +140,7 @@ export function Home(){
                     type="number" 
                     id="minutesAmount"
                     placeholder="00"
+                    disabled={!!activeCycle}
                     step={5}
                     min={5}
                     max={60}
@@ -139,7 +159,7 @@ export function Home(){
                 </CountdownContainer>
 
                 {activeCycle ? (
-                    <StopCountdownButton type="button">
+                    <StopCountdownButton onClick={handleInterruptCycle} type="button">
                     <HandPalm size={24} />
                     Interromper
                     </StopCountdownButton>
